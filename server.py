@@ -10,6 +10,7 @@ from recommend import (
 from recommend.const import ReturnCode
 from recommend.tools.args import parser
 from recommend.algorithm.video.v1 import algorithm
+from recommend.tools.trace import logger
 
 
 @flask_app.route('/recommend/video/guess-like', methods=['GET'])
@@ -36,7 +37,8 @@ def device_video_behavior(args):
     device = args['device']
     video_id = args['video_id']
     operation = args['operation']
-    tasks.update_video_recommendation.delay(device, video_id, operation)
+    if video_id:
+        tasks.update_video_recommendation.delay(device, video_id, operation)
     return jsonify({
         "code": ReturnCode.success,
         "result": "ok",
@@ -51,6 +53,7 @@ def device_video_behavior(args):
 def device_video_recommend(args):
     device = args['device']
     size = args.get('size', 10)
+    logger.info('device: {} size:{}'.format(device, size))
     videos = algorithm.get_recommend_videos(device, size)
     return jsonify({
         "code": ReturnCode.success,
