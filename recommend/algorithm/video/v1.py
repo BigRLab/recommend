@@ -153,7 +153,8 @@ class VideoAlgorithmV1(object):
         for item in hits:
             id_ = item['_id']
             score_ = item['_score']
-            video_map[id_] = score_
+            if score_ > 500000:
+                video_map[id_] = score_
         return video_map
 
     @cache_region.cache_on_arguments(expiration_time=3600)
@@ -223,7 +224,7 @@ class VideoAlgorithmV1(object):
         count = 0
         zset_args = []
         for key, value in recommend_list:
-            if count > 1000:
+            if count > 500:
                 break
 
             if key in recent_videos:
