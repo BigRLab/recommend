@@ -153,7 +153,7 @@ class VideoAlgorithmV1(object):
         for item in hits:
             id_ = item['_id']
             hot = item['_source']['hot']
-            if hot > 1000000:
+            if hot > 200000:
                 video_map[id_] = hot
         return video_map
 
