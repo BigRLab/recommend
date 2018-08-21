@@ -144,8 +144,7 @@ class VideoAlgorithmV1(object):
                 }
             },
             '_source': ['hot'],
-            'min_score': 30.0,
-            'sort': [{'hot': {'order': 'desc'}}]
+            'min_score': 30.0
         }
         query_result = es_client.search(video_index, video_type, body=query)
         hits = query_result['hits']['hits']
