@@ -231,7 +231,7 @@ class VideoAlgorithmV1(object):
                 zset_args.append(key)
                 recommending += 1
             else:
-                if recommended >= 300:    # 最近300条视频不重复
+                if recommended >= 100:    # 最近300条视频不重复
                     continue
 
                 zset_args.append(value)
