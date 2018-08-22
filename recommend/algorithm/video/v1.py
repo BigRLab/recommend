@@ -254,6 +254,7 @@ class VideoAlgorithmV1(object):
 
         # 推荐列表为空
         if not recommend_list:
+            redis_client.delete(device_key)
             video_ids = random.sample(self.hot_videos.keys(), 200)
             recommend_videos = video_ids[:size]
             zset_args = []
