@@ -145,7 +145,7 @@ class VideoAlgorithmV1(object):
                 }
             },
             '_source': ['hot', 'poster'],
-            'min_score': 30.0
+            'min_score': 20.0
         }
         query_result = es_client.search(video_index, video_type, body=query)
         hits = query_result['hits']['hits']
@@ -210,7 +210,7 @@ class VideoAlgorithmV1(object):
         if not tags:
             return
 
-        video_map = self._query_videos_by_tag(tags, 20)
+        video_map = self._query_videos_by_tag(tags, 30)
         if not video_map:
             return
 
