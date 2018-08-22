@@ -206,7 +206,7 @@ class VideoAlgorithmV1(object):
         if not tags:
             return
 
-        video_map = self._query_videos_by_tag(tags, 20)
+        video_map = self._query_videos_by_tag(tags, 40)
         if not video_map:
             return
 
