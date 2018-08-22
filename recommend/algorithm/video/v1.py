@@ -8,10 +8,10 @@ youtube 视频第一版推荐算法
 import time
 import random
 from math import log10
+import requests
 from recommend.models import (
     es_client,
     redis_client,
-    video_model,
     cache_region,
 )
 from recommend.const import (
@@ -40,6 +40,7 @@ class VideoAlgorithmV1(object):
     def __init__(self):
         self.hot_videos = {}
         self._load_hot_videos()
+        self._session = requests.Session()
 
     def _load_hot_videos(self):
         """加载热门视频"""
@@ -118,8 +119,7 @@ class VideoAlgorithmV1(object):
                     tags.add(w)
         return tags
 
-    @staticmethod
-    def _query_videos_by_tag(tags, size=100):
+    def _query_videos_by_tag(self, tags, size=100):
         """根据标签在es中查询视频
 
         Args:
@@ -144,7 +144,7 @@ class VideoAlgorithmV1(object):
                     ]
                 }
             },
-            '_source': ['hot'],
+            '_source': ['hot', 'poster'],
             'min_score': 30.0
         }
         query_result = es_client.search(video_index, video_type, body=query)
@@ -154,8 +154,12 @@ class VideoAlgorithmV1(object):
         for item in hits:
             id_ = item['_id']
             hot = item['_source']['hot']
-            if hot > 200000:
-                video_map[id_] = hot
+            poster = item['_source']['poster']
+            try:
+                if self._session.head(poster, timeout=1).status_code == 200:
+                    video_map[id_] = hot
+            except:
+                pass
         return video_map
 
     @cache_region.cache_on_arguments(expiration_time=3600)
@@ -206,7 +210,7 @@ class VideoAlgorithmV1(object):
         if not tags:
             return
 
-        video_map = self._query_videos_by_tag(tags, 40)
+        video_map = self._query_videos_by_tag(tags, 20)
         if not video_map:
             return
 
