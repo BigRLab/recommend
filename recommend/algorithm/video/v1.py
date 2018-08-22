@@ -156,8 +156,9 @@ class VideoAlgorithmV1(object):
             hot = item['_source']['hot']
             poster = item['_source']['poster']
             try:
-                if self._session.head(poster, timeout=1).status_code == 200:
-                    video_map[id_] = hot
+                if hot > 100000:
+                    if self._session.head(poster, timeout=1).status_code == 200:
+                        video_map[id_] = hot
             except:
                 pass
         return video_map
@@ -210,7 +211,7 @@ class VideoAlgorithmV1(object):
         if not tags:
             return
 
-        video_map = self._query_videos_by_tag(tags, 30)
+        video_map = self._query_videos_by_tag(tags, 20)
         if not video_map:
             return
 
