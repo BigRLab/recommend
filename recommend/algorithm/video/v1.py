@@ -211,10 +211,11 @@ class VideoAlgorithmV1(object):
             return
 
         recommend_map = {key.decode('utf8'): value for key, value in recommend_list}
-        recommend_map[device] = int(time.time()) - 2147483647
+        recommend_map[video] = int(time.time()) - 2147483647
         for key, value in video_map.items():
-            if key in recommend_map and recommend_map[key] > 0:
-                recommend_map[key] += video_operation_score[operation] * log10(value)
+            if key in recommend_map:
+                if recommend_map[key] > 0:
+                    recommend_map[key] += video_operation_score[operation] * log10(value)
             else:
                 recommend_map[key] = log10(value)
 
