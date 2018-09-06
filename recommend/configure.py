@@ -4,3 +4,4 @@
 ES_HOSTS = ['xxxxxx']
 MYSQL_URL = 'xxxxxx'
 REDIS_URL = 'xxxxx'
+AMQP_URL = 'xxxx'

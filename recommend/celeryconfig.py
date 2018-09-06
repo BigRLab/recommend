@@ -1,8 +1,8 @@
 # -*- coding: utf8 -*-
 """celery配置"""
-from recommend.configure import REDIS_URL
+from recommend.configure import AMQP_URL
 
-broker_url = REDIS_URL
+broker_url = AMQP_URL
 
 imports = (
     'recommend.tasks',
