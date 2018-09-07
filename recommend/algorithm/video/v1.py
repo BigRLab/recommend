@@ -136,6 +136,7 @@ class VideoAlgorithmV1(object):
                     'must': [
                         {'term': {'type': 'mv'}},
                         {'term': {'genre': 'youtube'}},
+                        {'term': {'status': 1}},
                         {
                             'bool': {
                                 'should': [{'term': {'tag': x}} for x in tags]
