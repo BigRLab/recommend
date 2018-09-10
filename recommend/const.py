@@ -18,3 +18,4 @@ class Operation(object):
     collect = 2
     share = 3
     star = 4
+    dislike = 5

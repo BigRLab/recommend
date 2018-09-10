@@ -32,6 +32,7 @@ video_operation_score = {
     Operation.collect: 0.2,
     Operation.share: 0.3,
     Operation.star: 0.2,
+    Operation.dislike: -0.5,
 }
 
 
@@ -217,11 +218,10 @@ class VideoAlgorithmV1(object):
             return
 
         recommend_map = {key.decode('utf8'): value for key, value in recommend_list}
-        recommend_map[video] = int(time.time()) - 2147483647
+        recommend_map[video] = (time.time() - 2147483647) / 200000000
         for key, value in video_map.items():
             if key in recommend_map:
-                if recommend_map[key] > 0:
-                    recommend_map[key] += video_operation_score[operation] * log10(value)
+                recommend_map[key] += video_operation_score[operation] * log10(value)
             else:
                 recommend_map[key] = log10(value)
 
@@ -237,7 +237,7 @@ class VideoAlgorithmV1(object):
                 zset_args.append(key)
                 recommending += 1
             else:
-                if recommended >= 100:    # 最近300条视频不重复
+                if recommended >= 500:    # 最近500条视频不重复
                     continue
 
                 zset_args.append(value)
@@ -275,7 +275,7 @@ class VideoAlgorithmV1(object):
 
         # 把推荐过的权值换成当前时间戳的负值,防止重复推荐
         zset_args = []
-        score = int(time.time()) - 2147483647
+        score = (time.time() - 2147483647) / 200000000
         for video in recommend_videos:
             zset_args.append(score)
             zset_args.append(video)
