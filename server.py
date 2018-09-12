@@ -14,20 +14,6 @@ from recommend.tools.trace import logger
 from recommend.models import redis_client
 
 
-@flask_app.route('/recommend/video/guess-like', methods=['GET'])
-@parser.use_args({
-    'id': fields.Str(required=True, location='query'),
-})
-def video_guess_like(args):
-    video_id = args['id']
-    videos = algorithm.get_similar_videos(video_id)
-    return jsonify({
-        "code": ReturnCode.success,
-        "result": "ok",
-        "data": videos,
-    })
-
-
 @flask_app.route('/recommend/device/video/behavior', methods=['POST'])
 @parser.use_args({
     'device': fields.Str(required=True, location='json'),

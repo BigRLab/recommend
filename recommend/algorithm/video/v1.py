@@ -120,7 +120,6 @@ class VideoAlgorithmV1(object):
                     tags.add(w)
         return tags
 
-    @cache_region.cache_on_arguments(expiration_time=3600)
     def _query_videos_by_tag(self, tags, size=100):
         """根据标签在es中查询视频
 
@@ -178,17 +177,11 @@ class VideoAlgorithmV1(object):
             # 从youtube爬到视频信息出异常
             tags = None
 
-        video_map = None
         if tags:
             video_map = self._query_videos_by_tag(tags, size)
-        if video_map:
-            video_ids = list(video_map.keys())
-        else:
-            video_ids = random.sample(self.hot_videos.keys(), size)
-
-        if video_id in video_ids:
-            video_ids.remove(video_id)
-        return get_videos(video_ids)
+            if video_id in video_map:
+                video_map.pop(video_id)
+                return video_map
 
     def update_recommend_list(self, device, video, operation):
         """针对用户操作视频的行为更新推荐列表
@@ -204,15 +197,7 @@ class VideoAlgorithmV1(object):
         if not recommend_list:
             return
 
-        try:
-            tags = self._get_video_tag(video)
-        except:
-            tags = None
-        # 视频没有标签 不推荐数据
-        if not tags:
-            return
-
-        video_map = self._query_videos_by_tag(tags, 20)
+        video_map = self.get_similar_videos(video, 20)
         if not video_map:
             return
 
