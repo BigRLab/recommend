@@ -146,7 +146,7 @@ class VideoAlgorithmV1(object):
                     ]
                 }
             },
-            '_source': ['hot', 'poster'],
+            '_source': ['hot'],
             'min_score': 20.0
         }
         query_result = es_client.search(video_index, video_type, body=query)
@@ -156,11 +156,9 @@ class VideoAlgorithmV1(object):
         for item in hits:
             id_ = item['_id']
             hot = item['_source']['hot']
-            poster = item['_source']['poster']
             try:
                 if hot > 100000:
-                    if self._session.head(poster, timeout=1).status_code == 200:
-                        video_map[id_] = hot
+                    video_map[id_] = hot
             except:
                 pass
         return video_map
