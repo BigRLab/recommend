@@ -40,7 +40,7 @@ def device_video_behavior(args):
     operation = args['operation']
     if video_id:
         redis_key = 'operation|{}|{}|{}'.format(device, video_id, operation)
-        if redis_client.get(redis_key):
+        if not redis_client.get(redis_key):
             tasks.update_video_recommendation.delay(device, video_id, operation)
             redis_client.set(redis_key, 1, ex=300)
     return jsonify({
