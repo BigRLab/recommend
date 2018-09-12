@@ -9,7 +9,6 @@ from recommend.algorithm.video.v1 import algorithm
 
 
 @celery_app.task
-@cache_region.cache_on_arguments(expiration_time=300)
 def update_video_recommendation(device, video_id, operation):
     """根据用户行为更新推荐内容
 
