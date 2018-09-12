@@ -36,7 +36,7 @@ cache_region = make_region().configure(
     'dogpile.cache.redis',
     arguments={
         'url': REDIS_URL,
-        'redis_expiration_time': 300,
+        'redis_expiration_time': 3600,
     },
     expiration_time=300,
 )

@@ -120,6 +120,7 @@ class VideoAlgorithmV1(object):
                     tags.add(w)
         return tags
 
+    @cache_region.cache_on_arguments(expiration_time=3600)
     def _query_videos_by_tag(self, tags, size=100):
         """根据标签在es中查询视频
 
