@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
 """celery 任务"""
 from recommend import celery_app
-from recommend.models import (
-    video_model,
-    cache_region,
-)
-from recommend.algorithm.video.v1 import algorithm
+from recommend.algorithm.video.v1 import algorithm1
+from recommend.algorithm.video.v2 import algorithm2
 
 
 @celery_app.task
-def update_video_recommendation(device, video_id, operation):
+def update_video_recommendation(version, device, video_id, operation):
     """根据用户行为更新推荐内容
 
     Args:
+        version (int): 设备的版本
         device (str): 设备id
         video_id (str): 视频id
         operation (int): 操作类型
     """
-    algorithm.update_recommend_list(device, video_id, operation)
-    video_model.VideoBehavior.add(device, video_id, operation)
+    if version < 11300:
+        algorithm1.update_recommend_list(device, video_id, operation)
+    else:
+        algorithm2.update_recommend_list(device, video_id, operation)

@@ -9,8 +9,8 @@ from recommend import (
 )
 from recommend.const import ReturnCode
 from recommend.tools.args import parser
-from recommend.algorithm.video.v1 import algorithm
-from recommend.tools.trace import logger
+from recommend.algorithm.video.v1 import algorithm1
+from recommend.algorithm.video.v2 import algorithm2
 from recommend.models import redis_client
 
 
@@ -19,15 +19,17 @@ from recommend.models import redis_client
     'device': fields.Str(required=True, location='json'),
     'video_id': fields.Str(required=True, location='json'),
     'operation': fields.Int(required=True, location='json'),
+    'version': fields.Str(required=True, location='json'),
 })
 def device_video_behavior(args):
     device = args['device']
     video_id = args['video_id']
     operation = args['operation']
+    version = args['version']
     if video_id:
         redis_key = 'operation|{}|{}|{}'.format(device, video_id, operation)
         if not redis_client.get(redis_key):
-            tasks.update_video_recommendation.delay(device, video_id, operation)
+            tasks.update_video_recommendation.delay(version, device, video_id, operation)
             redis_client.set(redis_key, 1, ex=300)
     return jsonify({
         "code": ReturnCode.success,
@@ -39,12 +41,16 @@ def device_video_behavior(args):
 @parser.use_args({
     'device': fields.Str(required=True, location='query'),
     'size': fields.Int(location='query'),
+    'version': fields.Int(location='query'),
 })
 def device_video_recommend(args):
     device = args['device']
     size = args.get('size', 10)
-    logger.info('device: {} size:{}'.format(device, size))
-    videos = algorithm.get_recommend_videos(device, size)
+    version = args.get('version', 0)
+    if version < 11300:
+        videos = algorithm1.get_recommend_videos(device, size)
+    else:
+        videos = algorithm2.get_recommend_videos(device, size)
     return jsonify({
         "code": ReturnCode.success,
         "result": "ok",

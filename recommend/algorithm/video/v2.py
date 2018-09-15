@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-youtube 视频第一版推荐算法
+youtube 视频第二版推荐算法
 
 召回环节通过比较标签相似度以及热门视频
 排序环境通过视频播放量进行排序
+和第一版没有本质区别, 只是需要根据视频id反查publish_id
 """
 import re
 import time
@@ -18,9 +19,10 @@ from recommend.models import (
 from recommend.const import (
     video_index,
     video_type,
-    hot_video_key,
+    hot_video_key_v2,
     Operation,
 )
+from recommend.configure import PUBLISH_QUERY_URL
 from recommend.algorithm.video import (
     stop_words_set,
     get_video,
@@ -37,31 +39,59 @@ video_operation_score = {
 }
 
 
-class VideoAlgorithmV1(object):
+class VideoAlgorithmV2(object):
 
     def __init__(self):
         self.hot_videos = {}
         self._load_hot_videos()
         self._session = requests.Session()
 
+    def _query_publish_id(self, videos_ids):
+        result_map = {}
+        if videos_ids:
+            return result_map
+
+        video_len = len(videos_ids)
+        offset, limit = 0, 100
+        while offset < video_len:
+            s = videos_ids[offset: offset+limit]
+            body = {
+                'resources': [{'res_type': 'video', 'res_id': x} for x in s]
+            }
+            res = self._session.post(PUBLISH_QUERY_URL, json=body).json()
+            for item in res['data']:
+                if not item['pub_ids']:
+                    continue
+                result_map[item['res_id']] = item['pub_ids'][0]
+
+            offset += limit
+        return result_map
+
     def _load_hot_videos(self):
         """加载热门视频"""
-        if redis_client.exists(hot_video_key):
+        if redis_client.exists(hot_video_key_v2):
             videos = redis_client.zrangebyscore(
-                hot_video_key, '-inf', '+inf', withscores=True)
+                hot_video_key_v2, '-inf', '+inf', withscores=True)
             for key, value in videos:
                 self.hot_videos[key.decode('utf8')] = value
         else:
-            self.hot_videos.update(self._get_hot_videos(size=700))
-            self.hot_videos.update(self._get_hot_videos(tag='india', size=200))
-            self.hot_videos.update(self._get_hot_videos(tag='bollywood', size=500))
-            self.hot_videos.update(self._get_hot_videos(tag='series', size=200))
+            video_map = {}
+            video_map.update(self._get_hot_videos(size=700))
+            video_map.update(self._get_hot_videos(tag='india', size=200))
+            video_map.update(self._get_hot_videos(tag='bollywood', size=500))
+            video_map.update(self._get_hot_videos(tag='series', size=200))
+
+            video_publish_map = self._query_publish_id(list(video_map.keys()))
 
             zset_args = []
-            for key, value in self.hot_videos.items():
+            for key, value in video_map.items():
+                if key not in video_publish_map:
+                    continue
+                redis_key = '{}|{}'.format(key, video_publish_map[key])
                 zset_args.append(value)
-                zset_args.append(key)
-            redis_client.zadd(hot_video_key, *zset_args)
+                zset_args.append(redis_key)
+                self.hot_videos[redis_key] = value
+            redis_client.zadd(hot_video_key_v2, *zset_args)
 
     @staticmethod
     def _get_hot_videos(tag=None, size=100):
@@ -77,6 +107,7 @@ class VideoAlgorithmV1(object):
                 'bool': {
                     'must': [
                         {'term': {'type': 'mv'}},
+                        {'term': {'genre': 'youtube'}},
                     ]
                 }
             },
@@ -191,11 +222,21 @@ class VideoAlgorithmV1(object):
             # 从youtube爬到视频信息出异常
             tags = None
 
-        if tags:
-            video_map = self._query_videos_by_tag(tags, size)
-            if video_id in video_map:
-                video_map.pop(video_id)
-            return video_map
+        if not tags:
+            return
+
+        video_map = self._query_videos_by_tag(tags, size)
+        if video_id in video_map:
+            video_map.pop(video_id)
+
+        video_publish_map = self._query_publish_id(list(video_map.keys())
+        result_map = {}
+        for key, value in video_map.items():
+            if key not in video_publish_map:
+                continue
+            redis_key = '{}|{}'.format(key, video_publish_map[key])
+            result_map[redis_key] = value
+        return result_map
 
     def update_recommend_list(self, device, video, operation):
         """针对用户操作视频的行为更新推荐列表
@@ -205,7 +246,7 @@ class VideoAlgorithmV1(object):
             video (str): 视频id
             operation (int): 操作类型
         """
-        device_key = 'device|{}|recommend'.format(device)
+        device_key = 'device|{}|recommend|v2'.format(device)
         recommend_list = redis_client.zrangebyscore(
             device_key, '-inf', '+inf', withscores=True, start=0, num=1000)
         if not recommend_list:
@@ -281,4 +322,4 @@ class VideoAlgorithmV1(object):
         return recommend_videos
 
 
-algorithm1 = VideoAlgorithmV1()
+algorithm2 = VideoAlgorithmV2()
