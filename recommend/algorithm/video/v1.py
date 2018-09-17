@@ -8,6 +8,7 @@ youtube 视频第一版推荐算法
 import re
 import time
 import random
+import requests
 from math import log10
 from recommend.models import (
     es_client,
@@ -39,8 +40,32 @@ video_operation_score = {
 class VideoAlgorithmV1(object):
 
     def __init__(self):
+        self._session = requests.Session()
         self.hot_videos = {}
         self._load_hot_videos()
+
+    def query_publish_id(self, video_ids):
+        result_map = {}
+        if not video_ids:
+            return result_map
+
+        video_len = len(video_ids)
+        offset, limit = 0, 200
+        while offset < video_len:
+            s = video_ids[offset: offset + limit]
+            body = {
+                'resources': [{'res_type': 'video', 'res_id': x} for x in s]
+            }
+            res = self._session.post(PUBLISH_QUERY_URL, json=body).json()
+            if not res['data']:
+                break
+            for item in res['data']:
+                if not item['pub_ids']:
+                    continue
+                result_map[item['res_id']] = item['pub_ids'][0]
+
+            offset += limit
+        return result_map
 
     def _load_hot_videos(self):
         """加载热门视频"""
@@ -75,6 +100,7 @@ class VideoAlgorithmV1(object):
                 'bool': {
                     'must': [
                         {'term': {'type': 'mv'}},
+                        {'term': {'genre': 'youtube'}},
                     ]
                 }
             },
