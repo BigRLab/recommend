@@ -46,15 +46,15 @@ class VideoAlgorithmV2(object):
         self._load_hot_videos()
         self._session = requests.Session()
 
-    def _query_publish_id(self, videos_ids):
+    def _query_publish_id(self, video_ids):
         result_map = {}
-        if videos_ids:
+        if not video_ids:
             return result_map
 
-        video_len = len(videos_ids)
+        video_len = len(video_ids)
         offset, limit = 0, 100
         while offset < video_len:
-            s = videos_ids[offset: offset+limit]
+            s = video_ids[offset: offset+limit]
             body = {
                 'resources': [{'res_type': 'video', 'res_id': x} for x in s]
             }
