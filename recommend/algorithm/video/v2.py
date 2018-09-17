@@ -59,6 +59,8 @@ class VideoAlgorithmV2(object):
                 'resources': [{'res_type': 'video', 'res_id': x} for x in s]
             }
             res = self._session.post(PUBLISH_QUERY_URL, json=body).json()
+            if not res['data']:
+                break
             for item in res['data']:
                 if not item['pub_ids']:
                     continue
