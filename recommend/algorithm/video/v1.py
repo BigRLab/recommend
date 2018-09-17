@@ -25,6 +25,7 @@ from recommend.algorithm.video import (
     stop_words_set,
     get_video,
 )
+from recommend.configure import PUBLISH_QUERY_URL
 
 
 emoji_pattern = re.compile('[\U0001F300-\U0001F64F\U0001F680-\U0001F6FF\u2600-\u2B55]+')
