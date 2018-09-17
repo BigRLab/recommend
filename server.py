@@ -47,7 +47,7 @@ def device_video_recommend(args):
     videos = algorithm1.get_recommend_videos(device, size)
     if version >= 11300:
         pub_map = algorithm1.query_publish_id(videos)
-        videos = {{'video_id': k, 'publish_id': v} for k,v in pub_map.items()}
+        videos = [{'video_id': k, 'publish_id': v} for k,v in pub_map.items()]
     return jsonify({
         "code": ReturnCode.success,
         "result": "ok",
