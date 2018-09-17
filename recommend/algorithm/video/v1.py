@@ -9,7 +9,6 @@ import re
 import time
 import random
 from math import log10
-import requests
 from recommend.models import (
     es_client,
     redis_client,
@@ -42,7 +41,6 @@ class VideoAlgorithmV1(object):
     def __init__(self):
         self.hot_videos = {}
         self._load_hot_videos()
-        self._session = requests.Session()
 
     def _load_hot_videos(self):
         """加载热门视频"""

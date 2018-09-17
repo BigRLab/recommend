@@ -42,9 +42,9 @@ video_operation_score = {
 class VideoAlgorithmV2(object):
 
     def __init__(self):
+        self._session = requests.Session()
         self.hot_videos = {}
         self._load_hot_videos()
-        self._session = requests.Session()
 
     def _query_publish_id(self, video_ids):
         result_map = {}
