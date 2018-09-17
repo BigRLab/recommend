@@ -229,7 +229,7 @@ class VideoAlgorithmV2(object):
         if video_id in video_map:
             video_map.pop(video_id)
 
-        video_publish_map = self._query_publish_id(list(video_map.keys())
+        video_publish_map = self._query_publish_id(list(video_map.keys()))
         result_map = {}
         for key, value in video_map.items():
             if key not in video_publish_map:
@@ -293,7 +293,7 @@ class VideoAlgorithmV2(object):
             device (str): 设备id
             size (int): 个数
         """
-        device_key = 'device|{}|recommend'.format(device)
+        device_key = 'device|{}|recommend|v2'.format(device)
         recommend_list = redis_client.zrevrangebyscore(
             device_key, min=0, max='+inf', withscores=True, start=0, num=size)
         recommend_list = [x[0].decode('utf8') for x in recommend_list]
