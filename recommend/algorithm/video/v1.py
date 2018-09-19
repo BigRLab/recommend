@@ -179,6 +179,7 @@ class VideoAlgorithmV1(object):
                     'must': [
                         {'term': {'type': 'mv'}},
                         {'term': {'genre': 'youtube'}},
+                        {'range': {'runtime': {"lte": 600}}},
                         {'term': {'status': 1}},
                         {
                             'bool': {
@@ -216,11 +217,13 @@ class VideoAlgorithmV1(object):
             # 从youtube爬到视频信息出异常
             tags = None
 
-        if tags:
-            video_map = self._query_videos_by_tag(tags, size)
-            if video_id in video_map:
-                video_map.pop(video_id)
-            return video_map
+        if not tags:
+            return
+
+        video_map = self._query_videos_by_tag(tags, size)
+        if video_id in video_map:
+            video_map.pop(video_id)
+        return video_map
 
     def update_recommend_list(self, device, video, operation):
         """针对用户操作视频的行为更新推荐列表
@@ -236,7 +239,7 @@ class VideoAlgorithmV1(object):
         if not recommend_list:
             return
 
-        video_map = self.get_similar_videos(video, 20)
+        video_map = self.get_similar_videos(video, 10)
         if not video_map:
             return
 
