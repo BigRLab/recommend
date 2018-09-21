@@ -76,10 +76,13 @@ class VideoAlgorithmV1(object):
             for key, value in videos:
                 self.hot_videos[key.decode('utf8')] = value
         else:
-            self.hot_videos.update(self._get_hot_videos(size=700))
-            self.hot_videos.update(self._get_hot_videos(tag='india', size=200))
-            self.hot_videos.update(self._get_hot_videos(tag='bollywood', size=500))
-            self.hot_videos.update(self._get_hot_videos(tag='series', size=200))
+            self.hot_videos.update(self._get_hot_videos(size=100))
+            self.hot_videos.update(self._get_hot_videos(tag='india', size=100))
+            self.hot_videos.update(self._get_hot_videos(tag='bollywood', size=200))
+            self.hot_videos.update(self._get_hot_videos(tag='series', size=100))
+            self.hot_videos.update(self._get_hot_videos(tag='funny', size=300))
+            self.hot_videos.update(self._get_hot_videos(tag='cricket', size=100))
+            self.hot_videos.update(self._get_hot_videos(tag='status', size=100))
 
             zset_args = []
             for key, value in self.hot_videos.items():
