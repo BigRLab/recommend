@@ -15,6 +15,6 @@ def update_video_recommendation(device, video_id, operation):
         operation (int): 操作类型
     """
     if device[0] in ('0', '1', '2', '3', '4', '5', '6', '7'):
-        algorithm1.update_recommend_list(device, video_id, operation)
-    else:
         algorithm2.update_recommend_list(device, video_id, operation)
+    else:
+        algorithm1.update_recommend_list(device, video_id, operation)
