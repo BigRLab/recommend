@@ -70,9 +70,9 @@ class VideoAlgorithmV2(object):
 
     def _load_hot_videos(self):
         """加载热门视频"""
-        if redis_client.exists(hot_video_key):
+        if redis_client.exists(hot_video_key2):
             videos = redis_client.zrangebyscore(
-                hot_video_key, '-inf', '+inf', withscores=True)
+                hot_video_key2, '-inf', '+inf', withscores=True)
             for key, value in videos:
                 self.hot_videos[key.decode('utf8')] = value
         else:
@@ -90,7 +90,7 @@ class VideoAlgorithmV2(object):
             for key, value in self.hot_videos.items():
                 zset_args.append(value)
                 zset_args.append(key)
-            redis_client.zadd(hot_video_key, *zset_args)
+            redis_client.zadd(hot_video_key2, *zset_args)
 
     @staticmethod
     def _get_hot_videos(tag=None, size=100):
