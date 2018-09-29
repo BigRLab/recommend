@@ -18,7 +18,7 @@ from recommend.models import (
 from recommend.const import (
     video_index,
     video_type,
-    hot_video_key,
+    hot_video_key2,
     Operation,
 )
 from recommend.algorithm.video import (
