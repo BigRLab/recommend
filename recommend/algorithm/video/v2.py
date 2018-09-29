@@ -79,7 +79,7 @@ class VideoAlgorithmV2(object):
             self.hot_videos.update(self._get_hot_videos(tag='india', size=100))
             self.hot_videos.update(self._get_hot_videos(tag='bollywood', size=100))
             self.hot_videos.update(self._get_hot_videos(tag='series', size=50))
-            self.hot_videos.update(self._get_hot_videos(tag='funny', size=100))
+            self.hot_videos.update(self._get_hot_videos(tag='indian funny', size=100))
             self.hot_videos.update(self._get_hot_videos(tag='cricket', size=100))
             self.hot_videos.update(self._get_hot_videos(tag='status', size=100))
             self.hot_videos.update(self._get_hot_videos(tag='sexy', size=100))
@@ -244,7 +244,7 @@ class VideoAlgorithmV2(object):
         if not recommend_list:
             return
 
-        video_map = self.get_similar_videos(video, 10)
+        video_map = self.get_similar_videos(video, 16)
         if not video_map:
             return
 

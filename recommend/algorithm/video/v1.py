@@ -242,7 +242,7 @@ class VideoAlgorithmV1(object):
         if not recommend_list:
             return
 
-        video_map = self.get_similar_videos(video, 10)
+        video_map = self.get_similar_videos(video, 16)
         if not video_map:
             return
 
